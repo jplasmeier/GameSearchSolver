@@ -4,31 +4,75 @@ import java.util.Scanner;
 
 public class Main {
 
-    private static void loopMode() {
+    private static void loopMode(GameType gameType, int gameSize) {
+
+        System.out.println("Welcome to GameSearchSolver. Please enter a command.");
         Scanner inputScanner = new Scanner(System.in);
+        NPuzzleState puzzleState = new NPuzzleState(3);
+        puzzleState = puzzleState.randomizeState(4);
+        puzzleState.printState();
         while(true) {
             String command = inputScanner.nextLine();
-            System.out.println("You entered: " + command);
+            // string to enum value
+            // apply command -> how? each command returns game state
+
         }
     }
 
-    private static void fileMode(String filename) {
-
+    private static void fileMode(String filename, GameType gameType, int gameSize) {
+        System.out.println("File mode selected. Opening " + filename);
     }
 
     public static void main(String[] args) {
+        // initialize to defaults
+        Mode mode = Mode.LOOP;
+        GameType gameType = GameType.N_PUZZLE;
+        String file = "commands.txt";
+        int gameSize = 8;
+
         if (args.length == 0) {
             // no command-line arguments
             // enter REPL mode
-            loopMode();
+            mode = Mode.LOOP;
+            gameType = GameType.N_PUZZLE;
         }
         else if (args.length == 1) {
             // enter file mode
-            fileMode(args[0]);
+            mode = Mode.FILE;
+            gameType = GameType.N_PUZZLE;
+        }
+        else if (args.length >= 2) {
+            // parse explicit arguments
+            try {
+                for (int i = 0; i < args.length; i++) {
+                    if (args[i].equals("--file")) {
+                        mode = Mode.FILE;
+                        file = args[i+1];
+                    }
+                    if (args[i].equals("--game-type")) {
+                        gameType = GameType.stringToGameType(args[i+1]);
+                    }
+                    if (args[i].equals("--game-size")) {
+                        gameSize = Integer.parseInt(args[i+1]);
+                    }
+                }
+            }
+            catch (Exception e) {
+                throw new IllegalArgumentException(e);
+            }
         }
         else {
             throw new IllegalArgumentException(String
                     .format("Too many (%d) arguments passed in. Only zero or one is expected.", args.length));
         }
+
+        // now we have mode, file, gameType
+        if (mode.equals(Mode.FILE)) {
+            fileMode(file, gameType, gameSize);
+        }
+        if(mode.equals(Mode.LOOP)) {
+            loopMode(gameType, gameSize);
+        }
+
     }
 }

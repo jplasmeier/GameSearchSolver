@@ -41,6 +41,7 @@ How to represent game state? The input and output representations are strings. I
 
 ### Notes
 
+1. Initialize Game State
 1. Read commands from a file 
 2. Parse commands into functions
 3. Represent game state 
