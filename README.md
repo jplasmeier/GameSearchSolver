@@ -30,6 +30,8 @@ This is the entry point of the program. It cointains the `main` function which i
 
 This is an Enum for matching command strings to functions. The mapping is stored in the Enum, and exposes a function that accepts a string of a command and its arguments, and calls its associated function with its arguments. 
 
+#### NPuzzle
+
 ### Representing the 8-puzzle Game State
 
 How to represent game state? The input and output representations are strings. It may be more convenient or efficient to represent the state differently within the program. 

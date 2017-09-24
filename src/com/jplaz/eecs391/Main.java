@@ -8,7 +8,8 @@ public class Main {
 
         System.out.println("Welcome to GameSearchSolver. Please enter a command.");
         Scanner inputScanner = new Scanner(System.in);
-        NPuzzleState puzzleState = new NPuzzleState(3);
+        NPuzzleState puzzleState = new NPuzzleState();
+        puzzleState.setState("b12 345 678");
         puzzleState = puzzleState.randomizeState(4);
         puzzleState.printState();
         while(true) {

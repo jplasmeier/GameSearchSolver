@@ -1,14 +1,19 @@
 package com.jplaz.eecs391;
 
+import java.util.ArrayList;
+
 interface GameState {
 
     GameState setState(String newState);
 
     GameState randomizeState(int n);
 
-    GameState move(String move);
+    GameState move(Move move);
 
-    boolean isValidMove(String move);
+    boolean isValidMove(Move move);
+
+    // useful for randomization
+    ArrayList<Move> getValidMoves();
 
     GameState solve(String algorithm, String heuristic);
 
