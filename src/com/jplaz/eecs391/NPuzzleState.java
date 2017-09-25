@@ -17,7 +17,9 @@ public class NPuzzleState implements GameState {
         char newBoard[] = new char[9];
         int boardPosition = 0;
         for (int i = 0; i < newState.length(); i++) {
-            if (newState.charAt(i) != (' ')) {
+            System.out.println("i: " + i + " charAt(i): " + newState.charAt(i) + " current board: " + newBoard.toString());
+            // skip the quotation marks and spaces
+            if (!(newState.charAt(i) == '\"' || newState.charAt(i) == (' '))) {
                 newBoard[boardPosition] = newState.charAt(i);
                 boardPosition++;
             }
@@ -52,6 +54,10 @@ public class NPuzzleState implements GameState {
     }
 
     public NPuzzleState move(Move move) {
+        if (!isValidMove(move)) {
+            System.out.println("Invalid Move! Try again.");
+            return this;
+        }
         int blankSpace = findBlankSpace();
         switch (move) {
             case UP:
@@ -102,7 +108,7 @@ public class NPuzzleState implements GameState {
         return false;
     }
 
-    public NPuzzleState solve(String algorithm, String heuristic) {
+    public NPuzzleState solve(String algorithm) {
         return this;
     }
 
@@ -130,8 +136,23 @@ public class NPuzzleState implements GameState {
         return this;
     }
 
-    public NPuzzleState applyCommand(Command cmd) {
-        return this;
+    public NPuzzleState applyCommand(Command cmd, String arg) throws Exception {
+        switch (cmd) {
+            case SET_STATE:
+                return this.setState(arg);
+            case RANDOMIZE_STATE:
+                return this.randomizeState(Integer.parseInt(arg));
+            case PRINT_STATE:
+                return this.printState();
+            case MOVE:
+                return this.move(Move.stringToMove(arg));
+            case SOLVE:
+                return this.solve(arg);
+            case SET_MAX_NODES:
+                return this.setMaxNodes(Integer.parseInt(arg));
+            default:
+                return this;
+        }
     }
 
 }

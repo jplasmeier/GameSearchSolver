@@ -15,7 +15,7 @@ interface GameState {
     // useful for randomization
     ArrayList<Move> getValidMoves();
 
-    GameState solve(String algorithm, String heuristic);
+    GameState solve(String algorithm);
 
     boolean isGoalState();
 
@@ -23,5 +23,5 @@ interface GameState {
 
     GameState printState();
 
-    GameState applyCommand(Command cmd);
+    GameState applyCommand(Command cmd, String args) throws Exception;
 }
