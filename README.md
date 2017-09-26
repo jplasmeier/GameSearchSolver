@@ -74,4 +74,4 @@ How to represent game state? The input and output representations are strings. I
 * Abstract GameState class 
 * Convert Command HashMap to Enum
 * fix input parsing to not be as hacky (split on non-quoted characters)
-
+* make manhattan distance not hard-coded

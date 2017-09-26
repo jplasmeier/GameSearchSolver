@@ -4,23 +4,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-
 public class NPuzzleState implements GameState {
 
-    private static final char GOAL_STATE[] = {'b','1','2','3','4','5', '6','7','8'};
+    private static final short GOAL_STATE[] = {0,1,2,3,4,5,6,7,8};
 
-    private char gameBoard[];
+    private short gameBoard[];
 
     private int maxNodes;
 
     public NPuzzleState setState(String newState) {
-        char newBoard[] = new char[9];
+        short newBoard[] = new short[9];
         int boardPosition = 0;
         for (int i = 0; i < newState.length(); i++) {
-            System.out.println("i: " + i + " charAt(i): " + newState.charAt(i) + " current board: " + newBoard.toString());
             // skip the quotation marks and spaces
             if (!(newState.charAt(i) == '\"' || newState.charAt(i) == (' '))) {
-                newBoard[boardPosition] = newState.charAt(i);
+                // b is not a number; 0 is preferred for calculations
+                if (newState.charAt(i) == 'b') {
+                    newBoard[boardPosition] = 0;
+                }
+                else {
+                    newBoard[boardPosition] = (short) Character.getNumericValue(newState.charAt(i));
+                }
                 boardPosition++;
             }
         }
@@ -47,7 +51,7 @@ public class NPuzzleState implements GameState {
     }
 
     private NPuzzleState swap(int a, int b) {
-        char tmp = gameBoard[a];
+        short tmp = gameBoard[a];
         gameBoard[a] = gameBoard[b];
         gameBoard[b] = tmp;
         return this;
@@ -87,7 +91,7 @@ public class NPuzzleState implements GameState {
 
     private int findBlankSpace() {
         int blankSpace = 0;
-        while (this.gameBoard[blankSpace] != 'b') {
+        while (this.gameBoard[blankSpace] != 0) {
             blankSpace++;
         }
         return blankSpace;
@@ -109,6 +113,97 @@ public class NPuzzleState implements GameState {
     }
 
     public NPuzzleState solve(String algorithm) {
+        // algorithm is either
+        // "beam" or "A-star h1" or "A-star h2"
+        if (algorithm.startsWith("beam")) {
+            return beamSearch();
+        }
+        else if (algorithm.startsWith("A-star")) {
+            String heuristic = algorithm.split(" ")[1];
+            return aStarSearch(heuristic);
+        }
+        return this;
+    }
+
+    /*
+     * Heuristic h1
+     */
+    private int numberOfMisplacedTiles() {
+        int numberOfTiles = 0;
+        for (int i = 0; i < gameBoard.length; i++) {
+            if (gameBoard[i] != GOAL_STATE[i]) {
+                numberOfTiles++;
+            }
+        }
+        return numberOfTiles;
+    }
+
+    /*
+     * Heuristic h2
+     */
+    private int boardManhattanDistance() {
+        int distance = 0;
+        for (int i = 0; i < gameBoard.length; i++) {
+            distance += tileManhattanDistance(i);
+        }
+        return distance;
+    }
+
+    /*
+     * Calculates the Manhattan Distance of a given board position.
+     */
+    private int tileManhattanDistance(int index) {
+        // each move is either -3, -1, +1, +3
+        int difference = Math.abs(index-gameBoard[index]);
+        switch (difference) {
+            case (0):
+                return 0;
+            case (1):
+                return 1;
+            case (2):
+                return 2;
+            case (3):
+                return 1;
+            case (4):
+                return 2;
+            case (5):
+                return 3;
+            case (6):
+                return 2;
+            case (7):
+                return 3;
+            case (8):
+                return 4;
+            default:
+                return 0;
+        }
+
+    }
+
+    private NPuzzleState aStarSearch(String heuristic) {
+        // if this is a goal state, return
+        if (isGoalState()) {
+            return this;
+        }
+
+        ArrayList<Move> validMoves = getValidMoves();
+        if (validMoves.size() == 0) {
+            System.out.println("No valid moves left; solution search failed.");
+            return this;
+        }
+        
+        switch (heuristic) {
+            case ("h1"):
+                System.out.println("misplaced tiles: " + numberOfMisplacedTiles());
+                return this;
+            case ("h2"):
+                System.out.println("Using Manhattan Distance: " + boardManhattanDistance());
+                return this;
+        }
+        return this;
+    }
+
+    private NPuzzleState beamSearch() {
         return this;
     }
 
