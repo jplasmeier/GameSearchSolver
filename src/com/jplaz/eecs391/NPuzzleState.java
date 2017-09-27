@@ -4,13 +4,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-public class NPuzzleState implements GameState {
+public class NPuzzleState {
 
     private static final short GOAL_STATE[] = {0,1,2,3,4,5,6,7,8};
 
     private short gameBoard[];
 
-    private int maxNodes;
+    public NPuzzleState(String initialState) {
+        setState(initialState);
+    }
+
+    public short[] getState() {
+        return this.gameBoard;
+    }
+
+    public NPuzzleState setState(short[] newBoard) {
+        this.gameBoard = newBoard;
+        return this;
+    }
 
     public NPuzzleState setState(String newState) {
         short newBoard[] = new short[9];
@@ -19,6 +30,7 @@ public class NPuzzleState implements GameState {
             // skip the quotation marks and spaces
             if (!(newState.charAt(i) == '\"' || newState.charAt(i) == (' '))) {
                 // b is not a number; 0 is preferred for calculations
+                // see "Representing the GameState" for more info
                 if (newState.charAt(i) == 'b') {
                     newBoard[boardPosition] = 0;
                 }
@@ -120,7 +132,7 @@ public class NPuzzleState implements GameState {
         }
         else if (algorithm.startsWith("A-star")) {
             String heuristic = algorithm.split(" ")[1];
-            return aStarSearch(heuristic);
+            return aStarSearch(heuristic, 0);
         }
         return this;
     }
@@ -128,10 +140,10 @@ public class NPuzzleState implements GameState {
     /*
      * Heuristic h1
      */
-    private int numberOfMisplacedTiles() {
+    private int numberOfMisplacedTiles(short[] board) {
         int numberOfTiles = 0;
-        for (int i = 0; i < gameBoard.length; i++) {
-            if (gameBoard[i] != GOAL_STATE[i]) {
+        for (int i = 0; i < board.length; i++) {
+            if (board[i] != GOAL_STATE[i]) {
                 numberOfTiles++;
             }
         }
@@ -141,10 +153,10 @@ public class NPuzzleState implements GameState {
     /*
      * Heuristic h2
      */
-    private int boardManhattanDistance() {
+    private int boardManhattanDistance(short[] board) {
         int distance = 0;
-        for (int i = 0; i < gameBoard.length; i++) {
-            distance += tileManhattanDistance(i);
+        for (int i = 0; i < board.length; i++) {
+            distance += tileManhattanDistance(board, i);
         }
         return distance;
     }
@@ -152,9 +164,13 @@ public class NPuzzleState implements GameState {
     /*
      * Calculates the Manhattan Distance of a given board position.
      */
-    private int tileManhattanDistance(int index) {
+    private int tileManhattanDistance(short[] board, int index) {
         // each move is either -3, -1, +1, +3
-        int difference = Math.abs(index-gameBoard[index]);
+        // the number of +1/+3 operations required to equal
+        // the difference is the manhattan distance
+        // e.g. for difference = 7: 3 + 3 + 1 -> 3 moves
+        int difference = Math.abs(index-board[index]);
+        // this doesn't have to be hardcoded, but it is for now
         switch (difference) {
             case (0):
                 return 0;
@@ -180,7 +196,7 @@ public class NPuzzleState implements GameState {
 
     }
 
-    private NPuzzleState aStarSearch(String heuristic) {
+    private NPuzzleState aStarSearch(String heuristic, int numberOfMoves) {
         // if this is a goal state, return
         if (isGoalState()) {
             return this;
@@ -191,13 +207,13 @@ public class NPuzzleState implements GameState {
             System.out.println("No valid moves left; solution search failed.");
             return this;
         }
-        
+
         switch (heuristic) {
             case ("h1"):
-                System.out.println("misplaced tiles: " + numberOfMisplacedTiles());
+                System.out.println("misplaced tiles: " + numberOfMisplacedTiles(gameBoard));
                 return this;
             case ("h2"):
-                System.out.println("Using Manhattan Distance: " + boardManhattanDistance());
+                System.out.println("Using Manhattan Distance: " + boardManhattanDistance(gameBoard));
                 return this;
         }
         return this;
@@ -211,14 +227,6 @@ public class NPuzzleState implements GameState {
         return Arrays.equals(this.gameBoard, GOAL_STATE);
     }
 
-    public NPuzzleState setMaxNodes(int maxNodes) {
-        this.maxNodes = maxNodes;
-        return this;
-    }
-
-    public int getMaxNodes() {
-        return this.maxNodes;
-    }
 
     public NPuzzleState printState() {
         for (int i = 0; i < gameBoard.length; i++) {
@@ -229,25 +237,6 @@ public class NPuzzleState implements GameState {
         }
         System.out.println();
         return this;
-    }
-
-    public NPuzzleState applyCommand(Command cmd, String arg) throws Exception {
-        switch (cmd) {
-            case SET_STATE:
-                return this.setState(arg);
-            case RANDOMIZE_STATE:
-                return this.randomizeState(Integer.parseInt(arg));
-            case PRINT_STATE:
-                return this.printState();
-            case MOVE:
-                return this.move(Move.stringToMove(arg));
-            case SOLVE:
-                return this.solve(arg);
-            case SET_MAX_NODES:
-                return this.setMaxNodes(Integer.parseInt(arg));
-            default:
-                return this;
-        }
     }
 
 }

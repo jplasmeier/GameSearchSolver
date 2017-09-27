@@ -9,8 +9,8 @@ public class Main {
 
         System.out.println("Welcome to GameSearchSolver. Please enter a command.");
         Scanner inputScanner = new Scanner(System.in);
-        NPuzzleState puzzleState = new NPuzzleState();
-        puzzleState.setState("b12 345 678");
+        NPuzzleState puzzleState = new NPuzzleState("b12 345 678");
+        GameSolver solver = new GameSolver(puzzleState);
         while(true) {
             String input_line = inputScanner.nextLine();
             String input_tokens[] = input_line.split(" ", 2);
@@ -20,7 +20,7 @@ public class Main {
                 input_arguments = input_tokens[1];
             }
             Command command = Command.stringToCommand(input_command);
-            puzzleState.applyCommand(command, input_arguments);
+            solver.applyCommand(command, input_arguments);
         }
     }
 

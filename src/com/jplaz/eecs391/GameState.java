@@ -19,8 +19,6 @@ interface GameState {
 
     boolean isGoalState();
 
-    GameState setMaxNodes(int maxNodes);
-
     GameState printState();
 
     GameState applyCommand(Command cmd, String args) throws Exception;
