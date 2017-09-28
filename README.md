@@ -29,15 +29,17 @@ The patterns for invoking the program are described in the following table:
 |java com.jplaz.eecs391.Main --game-type NPuzzle --game-size 3 |mode = loop, gameType = NPuzzle, gameSize = 3|
 |java com.jplaz.eecs391.Main --game-type NPuzzle --game-size 3 --file commands.txt|mode = file, gameType = NPuzzle, gameSize = 3|
 
-#### Commands.java
+#### Command.java
 
 This is an Enum for matching command strings to functions. The mapping is stored in the Enum, and exposes a function that accepts a string of a command and its arguments, and calls its associated function with its arguments. Since there are a fixed number of commands, it makes sense to enumerate them in an enum. Additionally, this enum provides a `stringToCommand` function that parses the command string into the enum type. 
 
+#### Move.java
+
+For the same reasons as above, Move.java enumerates the possible moves of the NPuzzle. Ideally, Move would be an interface and each puzzle would implement Move accordingly, but for now, these moves are for the NPuzzleState (up, down, left, right). 
+
 #### NPuzzleState.java
 
-There is no constructor; the game state is not initialized until `setState` or `randomizeState` is called. A design choice to make is: Should GameState objects be mutable or immutable? It seems like managing unique states in terms of marked/unmarked states would be much easier if each instance was a unique and immutable state. The GameSolver class should be able to easily create and manipulate the state of the game by manipulating instances rather than a single object. 
-
-However, we do not really need N object instances for N states. Because the state of a GameState object can be uniquely represented by its `gameBoard` field, we can reuse a single instance to represent the current state of the game. When searching, that is, dealing with successor states, we are still free to create new objects. 
+A big question that was addresssed during design is: Should GameState objects be mutable or immutable? It seems like managing unique states in terms of marked/unmarked states would be much easier if each instance was a unique and immutable state. The GameSolver class should be able to easily create and manipulate the state of the game by manipulating instances rather than a single object. This is implemented by making deep copies of the `gameBoard` array when making moves. Additionally, `equals()` and `hashCode()` are overridden so that when an instance of NPuzzleState is added to a hash map, another instance with the same game state will be considered equal. 
 
 #### GameSolver.java
 
@@ -45,9 +47,9 @@ This class implements the search algorithms. It operates on GameState objects.
 
 ### Representing the 8-puzzle Game State
 
-Perhaps he biggest question when implementing NPuzzleState is: how should game states be represented? The input and output representations are strings, but this is not the best choice for the actual representation that the movement methods will operate on. In order to take advantage of the mathematical rules governing game play, it makes sense to use numbers instead of characters. Specifically, a `short[]` is used, since the values are bounded to 0-8 for the 8-puzzle and are generally sufficiently small. This choice saves some memory compared to `int[]`, and gives constant time access. The board size is fixed, so no insertions or deletions are performed.  
+A big question that was addressed when implementing NPuzzleState is: how should game states be represented? The input and output representations are strings, but this is not the best choice for the actual representation that the movement methods will operate on. In order to take advantage of the mathematical rules governing game play, it makes sense to use numbers instead of characters. Specifically, a `short[]` is used, since the values are bounded to 0-8 for the 8-puzzle and are generally sufficiently small. This choice saves some memory compared to `int[]`, and gives constant time access. The board size is fixed, so no insertions or deletions are performed.  
 
-This provides an easy way to define which moves are valid: 
+This provides an easy way to arithmetically determine which moves are valid: 
 
 ```
 private boolean isValidMove(Move move) {
@@ -66,14 +68,13 @@ private boolean isValidMove(Move move) {
 }
 ```
 
-First, a helper method is used to find the index of the blank tile. Then, some arithmetic is done based on that index which determines whether or not the blank tile can be moved in a given direction. For example, if the blank space is "on the bottom row", it cannot be moved down. For the 8-puzzle, "on the bottom row" means that the index is greater than 5. Similar definitions are used for the other moves. 
+First, a helper method is used to find the index of the blank tile. Then, some arithmetic is done based on that index which determines whether or not the blank tile can be moved in a given direction. For example, if the blank space is "on the bottom row", it cannot be moved down. For the 8-puzzle, "on the bottom row" means that the index is greater than 5. The indices 0-5 are the top two rows, and the indices 6-8 are the bottom row. Similar definitions are used for the other moves. 
 
 To get a list of valid moves, simply take each move, and if it is valid, add it to a list. This makes finding the successor states as simple as calling one method, `getValidMoves()`.
 
 ### Managing Game State
 
 There are a few public methods of NPuzzleState governing tile movement that are used by the GameSolver class. These are `randomizeState(), move(), and getValidMoves()`. Additionally, the public methods `printState()` and `isGoalState()` are defined, as well as getters and setters for the `gameBoard` (state) and `pathCost` member fields. 
-
 
 ### A* Search
 
@@ -91,12 +92,11 @@ For the cost function, the `h2` heuristic from A* search is reused. This functio
 
 ## TODO, Eventually
 
-* file parsing
-* maxNodes is not implemented and it should be 
-* clean up array copying and not be a dipshit about it (use final)
+* clean up array copying and use final
 * set state to goal after solving/fix bug on solving twice
 * Clean up switch statements
 * Abstract class/Interface for GameSolver
+* Interface for Move
 * rethink gameStateCache data structure choice
 * fix input parsing to not be as hacky (split on non-quoted characters)
 * make manhattan distance not hard-coded

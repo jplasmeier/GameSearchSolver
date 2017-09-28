@@ -100,6 +100,12 @@ public class GameSolver {
                 return;
             }
 
+            // check maxNodes
+            if (iterations >= maxNodes) {
+                System.out.println("Max nodes reached! Failure!!");
+                return;
+            }
+
             // keep track of previously discovered states and iteration count
             staleStates.add(currentNode);
             iterations++;
@@ -167,6 +173,13 @@ public class GameSolver {
                         newState.printState();
                         return;
                     }
+
+                    // check maxNodes
+                    if (iterations >= maxNodes) {
+                        System.out.println("Max nodes exceeded! Failing...");
+                        return;
+                    }
+
                     // add to beam cache
                     beamCache.add(newState);
                 }
@@ -176,7 +189,7 @@ public class GameSolver {
             beam.clear();
             iterations++;
 
-            // select k best (using heuristic?) states to keep from the beam cache
+            // select k best (using heuristic) states to keep from the beam cache
             while (!beamCache.isEmpty() && beam.size() < numberOfStates) {
                 NPuzzleState currentState = beamCache.poll();
                 if (!gameStateCache.contains(currentState)) {
