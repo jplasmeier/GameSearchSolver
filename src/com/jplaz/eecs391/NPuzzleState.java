@@ -2,6 +2,7 @@ package com.jplaz.eecs391;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Random;
 
 public class NPuzzleState {
@@ -10,7 +11,11 @@ public class NPuzzleState {
 
     private short gameBoard[];
 
+    // initialize to max int so the initial cost comparison is always chosen
     private int pathCost = Integer.MAX_VALUE;
+
+    // store the path to this node as a LinkedList of moves
+    private LinkedList<Move> pathToNode = new LinkedList<>();
 
     public NPuzzleState(short[] initialBoard) {
         this.gameBoard = new short[GOAL_STATE.length];
@@ -23,6 +28,10 @@ public class NPuzzleState {
 
     public short[] getState() {
         return this.gameBoard;
+    }
+
+    public void setState(short[] newBoard) {
+        System.arraycopy(newBoard, 0, this.gameBoard, 0, newBoard.length);
     }
 
     public void setState(String newState) {
@@ -53,6 +62,18 @@ public class NPuzzleState {
         this.pathCost = pathCost;
     }
 
+    public LinkedList getPathToNode() {
+        return this.pathToNode;
+    }
+
+    public void setPathToNode(LinkedList newPath) {
+        this.pathToNode = new LinkedList<>(newPath);
+    }
+
+    public void appendMoveToPath(Move move) {
+        this.pathToNode.add(move);
+    }
+
     // Public Methods
 
     public void printState() {
@@ -63,6 +84,12 @@ public class NPuzzleState {
             System.out.print(gameBoard[i]);
         }
         System.out.println();
+    }
+
+    public void printPath() {
+        for (Move move : this.pathToNode) {
+            System.out.print(move.toString() + " ");
+        }
     }
 
     public boolean isGoalState() {

@@ -1,6 +1,6 @@
 # EECS 391: Programming Project 1
 
-## Design Choices
+## Code Design
 
 ### Object-Oriented Design
 
@@ -80,6 +80,8 @@ There are a few public methods of NPuzzleState governing tile movement that are 
 
 #### Tracking Path Cost
 
+
+
 #### Heuristic Selection/Implementation
 
 The heuristic function is used to order nodes in the priority queue. Java's PriorityQueue allows the programmer to supply an instance of the Comparator interface to determine an ordering of the objects in the queue. Therefore, it is natural to define and choose the heuristic within the comparator. To do this, Comparator is implemented by GameComparator, which defines a constructor that accepts as input a string and stores it as a local fied. When making a comparison, the GameComparator checks the value of that string ("h1" or "h2") and applies the heuristic (an instance method of the NPuzzleState class) accordingly. 
@@ -90,14 +92,20 @@ The heuristic function is used to order nodes in the priority queue. Java's Prio
 
 For the cost function, the `h2` heuristic from A* search is reused. This function worked well for A* and is a good choice of how good a given board state is. Plus, no extra code is required because the same NPuzzleState objects are used. 
 
-## TODO, Eventually
 
+
+## TODO
+
+_Hofstadter's Law: It always takes longer than you expect, even when you take into account Hofstadter's Law._
+
+- Douglas Hofstadter, _Gödel, Escher, Bach: An Eternal Golden Braid_
+
+* actually keep track of paths 
 * clean up array copying and use final
-* set state to goal after solving/fix bug on solving twice
 * Clean up switch statements
 * Abstract class/Interface for GameSolver
 * Interface for Move
 * rethink gameStateCache data structure choice
 * fix input parsing to not be as hacky (split on non-quoted characters)
 * make manhattan distance not hard-coded
-* fix interface(s)
+* fix GameState interface

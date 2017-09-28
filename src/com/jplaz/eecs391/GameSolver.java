@@ -59,15 +59,27 @@ public class GameSolver {
         String algorithm = tokens[0];
         String extraArg = tokens[1];
 
+        boolean success = false;
+
         if (algorithm.startsWith("beam")) {
-            beamSearch(initialState, Integer.parseInt(extraArg));
+            success = beamSearch(initialState, Integer.parseInt(extraArg));
         }
         else if (algorithm.startsWith("A-star")) {
-            aStarSearch(extraArg, initialState);
+            success = aStarSearch(extraArg, initialState);
+        }
+
+        if (success) {
+            // solution found, reset to initialState (goal)
+            this.currentGameState.setState("b12 345 678");
+        }
+        else {
+            System.out.print("No solution was found, so resetting to previous state: ");
+            this.currentGameState.printState();
+            this.currentGameState.setState(initialState.getState());
         }
     }
 
-    private void aStarSearch(String heuristic, NPuzzleState initialState) {
+    private boolean aStarSearch(String heuristic, NPuzzleState initialState) {
         // use this to avoid reinitializing existing states
         // only store the board because the board uniquely identifies objects
         HashMap<short[], NPuzzleState> gameStateCache = new HashMap<>();
@@ -89,21 +101,18 @@ public class GameSolver {
         while (!queue.isEmpty()) {
             // process the next node from the queue
             NPuzzleState currentNode = queue.poll();
-            System.out.print("Processing: ") ;
-            currentNode.printState();
-            System.out.println("The queue now is size: " + queue.size());
 
             // check if it's a goal state
             if (currentNode.isGoalState()) {
-                System.out.print("Goal State found in " + iterations + " iterations.");
-                currentNode.printState();
-                return;
+                System.out.println("Goal State found in " + iterations + " iterations.");
+                currentNode.printPath();
+                return true;
             }
 
             // check maxNodes
             if (iterations >= maxNodes) {
                 System.out.println("Max nodes reached! Failure!!");
-                return;
+                return false;
             }
 
             // keep track of previously discovered states and iteration count
@@ -114,7 +123,7 @@ public class GameSolver {
             ArrayList<Move> validMoves = currentNode.getValidMoves();
             if (validMoves.size() == 0) {
                 System.out.println("No valid moves left; solution search failed.");
-                return;
+                return false;
             }
 
             // explore each next state
@@ -127,6 +136,8 @@ public class GameSolver {
                 }
                 else {
                     newState = new NPuzzleState(currentNode.move(move));
+                    newState.setPathToNode(currentNode.getPathToNode());
+                    newState.appendMoveToPath(move);
                     gameStateCache.put(newState.getState(), newState);
                 }
 
@@ -135,10 +146,12 @@ public class GameSolver {
                     continue;
                 }
 
-                // update the path cost
+                // update the path cost, and path
                 int newPathCost = currentNode.getPathCost() + 1;
                 if (newPathCost < newState.getPathCost()) {
                     newState.setPathCost(newPathCost);
+                    newState.setPathToNode(currentNode.getPathToNode());
+                    newState.appendMoveToPath(move);
                 }
 
                 // finally, enqueue the new state
@@ -147,9 +160,10 @@ public class GameSolver {
                 }
             }
         }
+        return false;
     }
 
-    private void beamSearch(NPuzzleState initialState, int numberOfStates) {
+    private boolean beamSearch(NPuzzleState initialState, int numberOfStates) {
         System.out.println("Running Beam Search with " + numberOfStates + "states.");
         // initialize beam and gameStateCache
         ArrayList<NPuzzleState> beam = new ArrayList<>(numberOfStates);
@@ -166,18 +180,20 @@ public class GameSolver {
             for (NPuzzleState beamState : beam) {
                 for (Move move : beamState.getValidMoves()) {
                     NPuzzleState newState = new NPuzzleState(beamState.move(move));
+                    newState.setPathToNode(beamState.getPathToNode());
+                    newState.appendMoveToPath(move);
 
                     // check for goal state
                     if (newState.isGoalState()) {
                         System.out.println("Goal state found in " + (iterations + 1) + " iterations!");
-                        newState.printState();
-                        return;
+                        newState.printPath();
+                        return true;
                     }
 
                     // check maxNodes
                     if (iterations >= maxNodes) {
                         System.out.println("Max nodes exceeded! Failing...");
-                        return;
+                        return false;
                     }
 
                     // add to beam cache
@@ -199,6 +215,7 @@ public class GameSolver {
             }
         }
         System.out.println("Goal state was not found after " + iterations + " iterations.");
+        return false;
     }
 
     public void applyCommand(Command cmd, String arg) throws Exception {
