@@ -158,8 +158,6 @@ public class GameSolver {
             beamCache.clear();
             // for each state in the beam, generate k random states
             for (NPuzzleState beamState : beam) {
-                System.out.print("Searching from state: ");
-                beamState.printState();
                 for (Move move : beamState.getValidMoves()) {
                     NPuzzleState newState = new NPuzzleState(beamState.move(move));
 
@@ -182,8 +180,6 @@ public class GameSolver {
             while (!beamCache.isEmpty() && beam.size() < numberOfStates) {
                 NPuzzleState currentState = beamCache.poll();
                 if (!gameStateCache.contains(currentState)) {
-                    System.out.print("Adding to the cache and queue: ");
-                    currentState.printState();
                     gameStateCache.add(currentState);
                     beam.add(currentState);
                 }

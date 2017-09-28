@@ -25,10 +25,6 @@ public class NPuzzleState {
         return this.gameBoard;
     }
 
-    public void setState(short[] newBoard) {
-        this.gameBoard = newBoard;
-    }
-
     public void setState(String newState) {
         short newBoard[] = new short[9];
         int boardPosition = 0;
@@ -57,33 +53,35 @@ public class NPuzzleState {
         this.pathCost = pathCost;
     }
 
+    // Public Methods
+
+    public void printState() {
+        for (int i = 0; i < gameBoard.length; i++) {
+            if (i % 3 == 0) {
+                System.out.print(" ");
+            }
+            System.out.print(gameBoard[i]);
+        }
+        System.out.println();
+    }
+
+    public boolean isGoalState() {
+        for (int i = 0; i < GOAL_STATE.length; i++) {
+            if (GOAL_STATE[i] != this.gameBoard[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public NPuzzleState randomizeState(int n) {
         Random rand = new Random(391L);
         System.arraycopy(GOAL_STATE, 0, this.gameBoard, 0, GOAL_STATE.length);
 
         for (int i = 0; i < n; i++) {
-            this.printState();
             gameBoard = makeRandomMove(rand);
         }
         return this;
-    }
-
-    private short[] makeRandomMove(Random rand) {
-        ArrayList<Move> validMoves = this.getValidMoves();
-        Move randomMove = validMoves.get(rand.nextInt(validMoves.size()));
-        return move(randomMove);
-    }
-
-    private short[] swap(int a, int b) {
-        // make a deep copy of the array and return it
-        // this retains the property that each NPuzzleState
-        // object is a unique board state
-        short newBoard[] = new short[gameBoard.length];
-        System.arraycopy(gameBoard, 0, newBoard, 0, gameBoard.length);
-        short tmp = gameBoard[a];
-        newBoard[a] = gameBoard[b];
-        newBoard[b] = tmp;
-        return newBoard;
     }
 
     public short[] move(Move move) {
@@ -118,6 +116,26 @@ public class NPuzzleState {
         return validMoves;
     }
 
+    // Movement Helpers
+
+    private short[] makeRandomMove(Random rand) {
+        ArrayList<Move> validMoves = this.getValidMoves();
+        Move randomMove = validMoves.get(rand.nextInt(validMoves.size()));
+        return move(randomMove);
+    }
+
+    private short[] swap(int a, int b) {
+        // make a deep copy of the array and return it
+        // this retains the property that each NPuzzleState
+        // object is a unique board state
+        short newBoard[] = new short[gameBoard.length];
+        System.arraycopy(gameBoard, 0, newBoard, 0, gameBoard.length);
+        short tmp = gameBoard[a];
+        newBoard[a] = gameBoard[b];
+        newBoard[b] = tmp;
+        return newBoard;
+    }
+
     private int findBlankSpace() {
         int blankSpace = 0;
         while (this.gameBoard[blankSpace] != 0) {
@@ -126,7 +144,7 @@ public class NPuzzleState {
         return blankSpace;
     }
 
-    public boolean isValidMove(Move move) {
+    private boolean isValidMove(Move move) {
         int blankSpace = findBlankSpace();
         switch (move) {
             case UP:
@@ -140,6 +158,8 @@ public class NPuzzleState {
         }
         return false;
     }
+
+    // Heuristics
 
     /*
      * Heuristic h1
@@ -200,26 +220,7 @@ public class NPuzzleState {
 
     }
 
-    public boolean isGoalState() {
-        for (int i = 0; i < GOAL_STATE.length; i++) {
-            if (GOAL_STATE[i] != this.gameBoard[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-
-    public NPuzzleState printState() {
-        for (int i = 0; i < gameBoard.length; i++) {
-            if (i % 3 == 0) {
-                System.out.print(" ");
-            }
-            System.out.print(gameBoard[i]);
-        }
-        System.out.println();
-        return this;
-    }
+    // Overridden methods
 
     @Override
     public boolean equals(Object o2) {
@@ -239,7 +240,7 @@ public class NPuzzleState {
 
     @Override
     public int hashCode() {
-        return this.gameBoard.hashCode();
+        return Arrays.hashCode(this.gameBoard);
     }
 }
 

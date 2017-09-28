@@ -1,31 +1,49 @@
 package com.jplaz.eecs391;
 
-import java.util.Arrays;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
 
-    private static void loopMode(GameType gameType, int gameSize) throws Exception {
+    private static GameSolver solver = new GameSolver(new NPuzzleState("b12 345 678"));
 
+    private static void parseLineAndApply(String line) throws Exception {
+        String input_tokens[] = line.split(" ", 2);
+        String input_command = input_tokens[0];
+        String input_arguments = "";
+        if (!input_command.equals("printState")) {
+            input_arguments = input_tokens[1];
+        }
+        Command command = Command.stringToCommand(input_command);
+        solver.applyCommand(command, input_arguments);
+    }
+
+    private static void loopMode(GameType gameType, int gameSize) throws Exception {
         System.out.println("Welcome to GameSearchSolver. Please enter a command.");
         Scanner inputScanner = new Scanner(System.in);
-        NPuzzleState puzzleState = new NPuzzleState("b12 345 678");
-        GameSolver solver = new GameSolver(puzzleState);
         while(true) {
             String input_line = inputScanner.nextLine();
-            String input_tokens[] = input_line.split(" ", 2);
-            String input_command = input_tokens[0];
-            String input_arguments = "";
-            if (!input_command.equals("printState")) {
-                input_arguments = input_tokens[1];
-            }
-            Command command = Command.stringToCommand(input_command);
-            solver.applyCommand(command, input_arguments);
+            parseLineAndApply(input_line);
         }
     }
 
-    private static void fileMode(String filename, GameType gameType, int gameSize) {
+    private static void fileMode(String filename, GameType gameType, int gameSize) throws Exception {
         System.out.println("File mode selected. Opening " + filename);
+        try {
+            File file = new File(filename);
+            FileReader fileReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                parseLineAndApply(line);
+            }
+
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     public static void main(String[] args) throws Exception {
@@ -45,6 +63,7 @@ public class Main {
             // enter file mode
             mode = Mode.FILE;
             gameType = GameType.N_PUZZLE;
+            file = args[0];
         }
         else if (args.length >= 2) {
             // parse explicit arguments
@@ -67,8 +86,7 @@ public class Main {
             }
         }
         else {
-            throw new IllegalArgumentException(String
-                    .format("Too many (%d) arguments passed in. Only zero or one is expected.", args.length));
+            throw new IllegalArgumentException("Invalid argument(s).");
         }
 
         // now we have mode, file, gameType
