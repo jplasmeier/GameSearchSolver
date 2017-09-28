@@ -75,6 +75,9 @@ public class NPuzzleState {
     }
 
     private short[] swap(int a, int b) {
+        // make a deep copy of the array and return it
+        // this retains the property that each NPuzzleState
+        // object is a unique board state
         short newBoard[] = new short[gameBoard.length];
         System.arraycopy(gameBoard, 0, newBoard, 0, gameBoard.length);
         short tmp = gameBoard[a];
@@ -198,7 +201,6 @@ public class NPuzzleState {
     }
 
     public boolean isGoalState() {
-        this.printState();
         for (int i = 0; i < GOAL_STATE.length; i++) {
             if (GOAL_STATE[i] != this.gameBoard[i]) {
                 return false;

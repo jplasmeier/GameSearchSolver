@@ -91,7 +91,7 @@ The heuristic function is used to order nodes in the priority queue. Java's Prio
 ## TODO, Eventually
 
 * clean up array copying and not be a dipshit about it 
-* set state to goal after solving?
+* set state to goal after solving/fix bug on solving twice
 * Clean up switch statements
 * Abstract class/Interface for GameSolver
 * rethink gameStateCache data structure choice
