@@ -10,6 +10,13 @@ public class NPuzzleState {
 
     private short gameBoard[];
 
+    private int pathCost = Integer.MAX_VALUE;
+
+    public NPuzzleState(short[] initialBoard) {
+        this.gameBoard = new short[GOAL_STATE.length];
+        System.arraycopy(initialBoard, 0, this.gameBoard, 0, initialBoard.length);
+    }
+
     public NPuzzleState(String initialState) {
         setState(initialState);
     }
@@ -18,12 +25,11 @@ public class NPuzzleState {
         return this.gameBoard;
     }
 
-    public NPuzzleState setState(short[] newBoard) {
+    public void setState(short[] newBoard) {
         this.gameBoard = newBoard;
-        return this;
     }
 
-    public NPuzzleState setState(String newState) {
+    public void setState(String newState) {
         short newBoard[] = new short[9];
         int boardPosition = 0;
         for (int i = 0; i < newState.length(); i++) {
@@ -41,38 +47,46 @@ public class NPuzzleState {
             }
         }
         this.gameBoard = newBoard;
-        return this;
+    }
+
+    public int getPathCost() {
+        return pathCost;
+    }
+
+    public void setPathCost(int pathCost) {
+        this.pathCost = pathCost;
     }
 
     public NPuzzleState randomizeState(int n) {
         Random rand = new Random(391L);
-        this.gameBoard = GOAL_STATE;
+        System.arraycopy(GOAL_STATE, 0, this.gameBoard, 0, GOAL_STATE.length);
 
         for (int i = 0; i < n; i++) {
             this.printState();
-            makeRandomMove(rand);
+            gameBoard = makeRandomMove(rand);
         }
         return this;
     }
 
-    private NPuzzleState makeRandomMove(Random rand) {
+    private short[] makeRandomMove(Random rand) {
         ArrayList<Move> validMoves = this.getValidMoves();
         Move randomMove = validMoves.get(rand.nextInt(validMoves.size()));
-        move(randomMove);
-        return this;
+        return move(randomMove);
     }
 
-    private NPuzzleState swap(int a, int b) {
+    private short[] swap(int a, int b) {
+        short newBoard[] = new short[gameBoard.length];
+        System.arraycopy(gameBoard, 0, newBoard, 0, gameBoard.length);
         short tmp = gameBoard[a];
-        gameBoard[a] = gameBoard[b];
-        gameBoard[b] = tmp;
-        return this;
+        newBoard[a] = gameBoard[b];
+        newBoard[b] = tmp;
+        return newBoard;
     }
 
-    public NPuzzleState move(Move move) {
+    public short[] move(Move move) {
         if (!isValidMove(move)) {
             System.out.println("Invalid Move! Try again.");
-            return this;
+            return gameBoard;
         }
         int blankSpace = findBlankSpace();
         switch (move) {
@@ -85,7 +99,7 @@ public class NPuzzleState {
             case RIGHT:
                 return swap(blankSpace, blankSpace + 1);
         }
-        return this;
+        return gameBoard;
     }
 
     public ArrayList<Move> getValidMoves() {
@@ -124,26 +138,13 @@ public class NPuzzleState {
         return false;
     }
 
-    public NPuzzleState solve(String algorithm) {
-        // algorithm is either
-        // "beam" or "A-star h1" or "A-star h2"
-        if (algorithm.startsWith("beam")) {
-            return beamSearch();
-        }
-        else if (algorithm.startsWith("A-star")) {
-            String heuristic = algorithm.split(" ")[1];
-            return aStarSearch(heuristic, 0);
-        }
-        return this;
-    }
-
     /*
      * Heuristic h1
      */
-    private int numberOfMisplacedTiles(short[] board) {
+    public int numberOfMisplacedTiles() {
         int numberOfTiles = 0;
-        for (int i = 0; i < board.length; i++) {
-            if (board[i] != GOAL_STATE[i]) {
+        for (int i = 0; i < gameBoard.length; i++) {
+            if (gameBoard[i] != GOAL_STATE[i]) {
                 numberOfTiles++;
             }
         }
@@ -153,10 +154,10 @@ public class NPuzzleState {
     /*
      * Heuristic h2
      */
-    private int boardManhattanDistance(short[] board) {
+    public int boardManhattanDistance() {
         int distance = 0;
-        for (int i = 0; i < board.length; i++) {
-            distance += tileManhattanDistance(board, i);
+        for (int i = 0; i < gameBoard.length; i++) {
+            distance += tileManhattanDistance(gameBoard, i);
         }
         return distance;
     }
@@ -196,42 +197,21 @@ public class NPuzzleState {
 
     }
 
-    private NPuzzleState aStarSearch(String heuristic, int numberOfMoves) {
-        // if this is a goal state, return
-        if (isGoalState()) {
-            return this;
-        }
-
-        ArrayList<Move> validMoves = getValidMoves();
-        if (validMoves.size() == 0) {
-            System.out.println("No valid moves left; solution search failed.");
-            return this;
-        }
-
-        switch (heuristic) {
-            case ("h1"):
-                System.out.println("misplaced tiles: " + numberOfMisplacedTiles(gameBoard));
-                return this;
-            case ("h2"):
-                System.out.println("Using Manhattan Distance: " + boardManhattanDistance(gameBoard));
-                return this;
-        }
-        return this;
-    }
-
-    private NPuzzleState beamSearch() {
-        return this;
-    }
-
     public boolean isGoalState() {
-        return Arrays.equals(this.gameBoard, GOAL_STATE);
+        this.printState();
+        for (int i = 0; i < GOAL_STATE.length; i++) {
+            if (GOAL_STATE[i] != this.gameBoard[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
     public NPuzzleState printState() {
         for (int i = 0; i < gameBoard.length; i++) {
             if (i % 3 == 0) {
-                System.out.println();
+                System.out.print(" ");
             }
             System.out.print(gameBoard[i]);
         }
@@ -239,5 +219,25 @@ public class NPuzzleState {
         return this;
     }
 
+    @Override
+    public boolean equals(Object o2) {
+        if (!(o2 instanceof NPuzzleState)) {
+            return false;
+        }
+        NPuzzleState n2 = (NPuzzleState) o2;
+
+        for (int i = 0; i < this.gameBoard.length; i++) {
+            if (this.gameBoard[i] != n2.gameBoard[i]) {
+                return false;
+            }
+        }
+        return true;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return this.gameBoard.hashCode();
+    }
 }
 

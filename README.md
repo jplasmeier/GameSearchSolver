@@ -52,6 +52,15 @@ How to represent game state? The input and output representations are strings, b
 
 ### Game State Evolution
 
+### A* Search
+
+#### Tracking Path Cost
+
+
+
+#### Heuristic Selection/Implementation
+
+The heuristic function is used to order nodes in the priority queue. Java's PriorityQueue allows the programmer to supply an instance of the Comparator interface to determine an ordering of the objects in the queue. Therefore, it is natural to define and choose the heuristic within the comparator. To do this, Comparator is implemented by GameComparator, which defines a constructor that accepts as input a string and stores it as a local fied. When making a comparison, the GameComparator checks the value of that string ("h1" or "h2") and applies the heuristic (an instance method of the NPuzzleState class) accordingly. 
 
 ## Execution Flow
 
@@ -81,9 +90,11 @@ How to represent game state? The input and output representations are strings, b
 
 ## TODO, Eventually
 
+* clean up array copying and not be a dipshit about it 
+* set state to goal after solving?
 * Clean up switch statements
-* Abstract GameState class 
-* Convert Command HashMap to Enum
+* Abstract class/Interface for GameSolver
+* rethink gameStateCache data structure choice
 * fix input parsing to not be as hacky (split on non-quoted characters)
 * make manhattan distance not hard-coded
 * fix interface(s)
