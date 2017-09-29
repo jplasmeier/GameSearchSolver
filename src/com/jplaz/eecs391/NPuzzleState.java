@@ -77,12 +77,19 @@ public class NPuzzleState {
     // Public Methods
 
     public void printState() {
+        System.out.print("\"");
         for (int i = 0; i < gameBoard.length; i++) {
-            if (i % 3 == 0) {
+            if (i % 3 == 0 && i != 0) {
                 System.out.print(" ");
             }
-            System.out.print(gameBoard[i]);
+            if (gameBoard[i] == 0) {
+                System.out.print("b");
+            }
+            else {
+                System.out.print(gameBoard[i]);
+            }
         }
+        System.out.print("\"");
         System.out.println();
     }
 
@@ -90,6 +97,7 @@ public class NPuzzleState {
         for (Move move : this.pathToNode) {
             System.out.print(move.toString() + " ");
         }
+        System.out.println();
     }
 
     public boolean isGoalState() {

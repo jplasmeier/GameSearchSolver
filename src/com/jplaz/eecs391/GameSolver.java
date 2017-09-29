@@ -43,6 +43,7 @@ public class GameSolver {
     }
 
     public void setMaxNodes(int maxNodes) {
+        System.out.println("Setting maxNodes to: " + maxNodes);
         this.maxNodes = maxNodes;
     }
 
@@ -51,7 +52,7 @@ public class GameSolver {
     }
 
 
-    public void solve(String arg, NPuzzleState initialState) {
+    public boolean solve(String arg, NPuzzleState initialState) {
         // arg is either:
         // "beam k" or "A-star h1" or "A-star h2"
         // so split into tokens and handle accordingly
@@ -77,6 +78,7 @@ public class GameSolver {
             this.currentGameState.printState();
             this.currentGameState.setState(initialState.getState());
         }
+        return success;
     }
 
     private boolean aStarSearch(String heuristic, NPuzzleState initialState) {
@@ -104,14 +106,14 @@ public class GameSolver {
 
             // check if it's a goal state
             if (currentNode.isGoalState()) {
-                System.out.println("Goal State found in " + iterations + " iterations.");
+                System.out.println("  [SUCCESS] Goal State found in " + iterations + " iterations.");
                 currentNode.printPath();
                 return true;
             }
 
             // check maxNodes
             if (iterations >= maxNodes) {
-                System.out.println("Max nodes reached! Failure!!");
+                System.out.println("  [FAILURE] Max nodes reached! Failure!!");
                 return false;
             }
 
@@ -122,7 +124,7 @@ public class GameSolver {
             // get the successor states
             ArrayList<Move> validMoves = currentNode.getValidMoves();
             if (validMoves.size() == 0) {
-                System.out.println("No valid moves left; solution search failed.");
+                System.out.println("  [FAILURE] No valid moves left; solution search failed.");
                 return false;
             }
 
@@ -185,14 +187,14 @@ public class GameSolver {
 
                     // check for goal state
                     if (newState.isGoalState()) {
-                        System.out.println("Goal state found in " + (iterations + 1) + " iterations!");
+                        System.out.println("  [SUCCESS] Goal state found in " + (iterations + 1) + " iterations!");
                         newState.printPath();
                         return true;
                     }
 
                     // check maxNodes
                     if (iterations >= maxNodes) {
-                        System.out.println("Max nodes exceeded! Failing...");
+                        System.out.println("  [FAILURE] Max nodes exceeded! Failing...");
                         return false;
                     }
 
@@ -218,7 +220,7 @@ public class GameSolver {
         return false;
     }
 
-    public void applyCommand(Command cmd, String arg) throws Exception {
+    public boolean applyCommand(Command cmd, String arg) throws Exception {
         switch (cmd) {
             case SET_STATE:
                 this.currentGameState.setState(arg);
@@ -233,11 +235,18 @@ public class GameSolver {
                 this.currentGameState.move(Move.stringToMove(arg));
                 break;
             case SOLVE:
-                this.solve(arg, currentGameState);
-                break;
+                return this.solve(arg, currentGameState);
             case SET_MAX_NODES:
-                this.maxNodes = Integer.parseInt(arg);
+                this.setMaxNodes(Integer.parseInt(arg));
+                break;
+            case NOOP:
+                // do...nothing!
+                System.out.println("I'm not familiar with this command. Please try again.");
                 break;
         }
+        // really this shouldn't return anything
+        // but it will return true upon successful solution
+        // kind of a hack but oh well
+        return false;
     }
 }

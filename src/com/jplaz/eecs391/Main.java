@@ -14,7 +14,7 @@ public class Main {
         String input_tokens[] = line.split(" ", 2);
         String input_command = input_tokens[0];
         String input_arguments = "";
-        if (!input_command.equals("printState")) {
+        if (input_tokens.length > 1) {
             input_arguments = input_tokens[1];
         }
         Command command = Command.stringToCommand(input_command);
@@ -52,6 +52,7 @@ public class Main {
         GameType gameType = GameType.N_PUZZLE;
         String file = "commands.txt";
         int gameSize = 3;
+        int maxNodes = 20000;
 
         if (args.length == 0) {
             // no command-line arguments
@@ -65,6 +66,7 @@ public class Main {
             gameType = GameType.N_PUZZLE;
             file = args[0];
         }
+        // this might not work at all lol
         else if (args.length >= 2) {
             // parse explicit arguments
             try {
@@ -96,6 +98,5 @@ public class Main {
         if(mode.equals(Mode.LOOP)) {
             loopMode(gameType, gameSize);
         }
-
     }
 }
