@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class NPuzzleState {
+public class NPuzzleState implements GameState {
 
     private static final short GOAL_STATE[] = {0,1,2,3,4,5,6,7,8};
 
@@ -24,14 +24,6 @@ public class NPuzzleState {
 
     public NPuzzleState(String initialState) {
         setState(initialState);
-    }
-
-    public short[] getState() {
-        return this.gameBoard;
-    }
-
-    public void setState(short[] newBoard) {
-        System.arraycopy(newBoard, 0, this.gameBoard, 0, newBoard.length);
     }
 
     public void setState(String newState) {
@@ -112,30 +104,38 @@ public class NPuzzleState {
     public NPuzzleState randomizeState(int n) {
         Random rand = new Random(391L);
         System.arraycopy(GOAL_STATE, 0, this.gameBoard, 0, GOAL_STATE.length);
+        NPuzzleState newState = this;
 
         for (int i = 0; i < n; i++) {
-            gameBoard = makeRandomMove(rand);
+            newState = newState.makeRandomMove(rand);
         }
-        return this;
+        return newState;
     }
 
-    public short[] move(Move move) {
+    public NPuzzleState move(Move move) {
         if (!isValidMove(move)) {
             System.out.println("Invalid Move! Try again.");
-            return gameBoard;
+            return this;
         }
         int blankSpace = findBlankSpace();
+        short[] newBoard;
         switch (move) {
             case UP:
-                return swap(blankSpace, blankSpace - 3);
+                newBoard = swap(blankSpace, blankSpace - 3);
+                break;
             case DOWN:
-                return swap(blankSpace, blankSpace + 3);
+                newBoard = swap(blankSpace, blankSpace + 3);
+                break;
             case LEFT:
-                return swap(blankSpace, blankSpace - 1);
+                newBoard = swap(blankSpace, blankSpace - 1);
+                break;
             case RIGHT:
-                return swap(blankSpace, blankSpace + 1);
+                newBoard = swap(blankSpace, blankSpace + 1);
+                break;
+            default:
+                newBoard = this.gameBoard;
         }
-        return gameBoard;
+        return new NPuzzleState(newBoard);
     }
 
     public ArrayList<Move> getValidMoves() {
@@ -153,7 +153,7 @@ public class NPuzzleState {
 
     // Movement Helpers
 
-    private short[] makeRandomMove(Random rand) {
+    private NPuzzleState makeRandomMove(Random rand) {
         ArrayList<Move> validMoves = this.getValidMoves();
         Move randomMove = validMoves.get(rand.nextInt(validMoves.size()));
         return move(randomMove);
@@ -195,6 +195,17 @@ public class NPuzzleState {
     }
 
     // Heuristics
+
+    public int calculateHeuristic(String heuristic) {
+        switch (heuristic) {
+            case "h1":
+                return numberOfMisplacedTiles();
+            case "h2":
+                return boardManhattanDistance();
+            default:
+                return 0;
+        }
+    }
 
     /*
      * Heuristic h1

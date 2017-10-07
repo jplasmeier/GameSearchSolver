@@ -4,7 +4,7 @@ import java.util.*;
 
 public class GameSolver {
 
-    public class GameComparator implements Comparator<NPuzzleState> {
+    public class GameComparator implements Comparator<GameState> {
 
         // the heuristic is used to order the priority queue
         // so its implemented in the comparator and the
@@ -15,30 +15,20 @@ public class GameSolver {
             this.heuristic = heuristic;
         }
 
-        public int compare(NPuzzleState state1, NPuzzleState state2) {
+        public int compare(GameState state1, GameState state2) {
             int f1;
             int f2;
-            switch (this.heuristic) {
-                case "h1":
-                    f1 = state1.getPathCost() + state1.numberOfMisplacedTiles();
-                    f2 = state2.getPathCost() + state2.numberOfMisplacedTiles();
-                    return Integer.signum(f1 - f2);
-                case "h2":
-                    f1 = state1.getPathCost() + state1.boardManhattanDistance();
-                    f2 = state2.getPathCost() + state2.boardManhattanDistance();
-                    return Integer.signum(f1 - f2);
-                default:
-                    // no heuristic -> no ordering
-                    return 0;
-            }
+            f1 = state1.getPathCost() + state1.calculateHeuristic(this.heuristic);
+            f2 = state2.getPathCost() + state2.calculateHeuristic(this.heuristic);
+            return Integer.signum(f1 - f2);
         }
     }
 
     private int maxNodes;
 
-    private NPuzzleState currentGameState;
+    private GameState currentGameState;
 
-    public GameSolver(NPuzzleState initialState) {
+    public GameSolver(GameState initialState) {
         this.currentGameState = initialState;
     }
 
@@ -52,7 +42,7 @@ public class GameSolver {
     }
 
 
-    public boolean solve(String arg, NPuzzleState initialState) {
+    public boolean solve(String arg, GameState initialState) {
         // arg is either:
         // "beam k" or "A-star h1" or "A-star h2"
         // so split into tokens and handle accordingly
@@ -76,33 +66,33 @@ public class GameSolver {
         else {
             System.out.print("No solution was found, so resetting to previous state: ");
             this.currentGameState.printState();
-            this.currentGameState.setState(initialState.getState());
+            this.currentGameState = initialState;
         }
         return success;
     }
 
-    private boolean aStarSearch(String heuristic, NPuzzleState initialState) {
+    private boolean aStarSearch(String heuristic, GameState initialState) {
         // use this to avoid reinitializing existing states
         // only store the board because the board uniquely identifies objects
-        HashMap<short[], NPuzzleState> gameStateCache = new HashMap<>();
-        ArrayList<NPuzzleState> staleStates = new ArrayList<>();
+        ArrayList<GameState> gameStateCache = new ArrayList<>();
+        ArrayList<GameState> staleStates = new ArrayList<>();
 
         System.out.print("Starting A* search on: ");
         initialState.printState();
 
         // initialize comparator and priority queue
         GameComparator gameComparator = new GameComparator(heuristic);
-        Queue<NPuzzleState> queue = new PriorityQueue<>(11, gameComparator);
+        Queue<GameState> queue = new PriorityQueue<>(11, gameComparator);
         int iterations = 0;
 
         // start with the initialState
         queue.add(initialState);
         initialState.setPathCost(0);
-        gameStateCache.put(initialState.getState(), initialState);
+        gameStateCache.add(initialState);
 
         while (!queue.isEmpty()) {
             // process the next node from the queue
-            NPuzzleState currentNode = queue.poll();
+            GameState currentNode = queue.poll();
 
             // check if it's a goal state
             if (currentNode.isGoalState()) {
@@ -130,17 +120,17 @@ public class GameSolver {
 
             // explore each next state
             for (Move move : validMoves) {
-                NPuzzleState newState;
+                GameState newState;
 
                 // check cache in case the node was enqueued but not processed
-                if (gameStateCache.containsKey(currentNode.move(move))) {
-                    newState = gameStateCache.get(currentNode.move(move));
+                if (gameStateCache.contains(currentNode.move(move))) {
+                    newState = gameStateCache.get(gameStateCache.indexOf(currentNode.move(move)));
                 }
                 else {
-                    newState = new NPuzzleState(currentNode.move(move));
+                    newState = currentNode.move(move);
                     newState.setPathToNode(currentNode.getPathToNode());
                     newState.appendMoveToPath(move);
-                    gameStateCache.put(newState.getState(), newState);
+                    gameStateCache.add(newState);
                 }
 
                 // if the state has already been processed, skip
@@ -165,13 +155,13 @@ public class GameSolver {
         return false;
     }
 
-    private boolean beamSearch(NPuzzleState initialState, int numberOfStates) {
+    private boolean beamSearch(GameState initialState, int numberOfStates) {
         System.out.println("Running Beam Search with " + numberOfStates + "states.");
         // initialize beam and gameStateCache
-        ArrayList<NPuzzleState> beam = new ArrayList<>(numberOfStates);
-        ArrayList<NPuzzleState> gameStateCache = new ArrayList<>();
+        ArrayList<GameState> beam = new ArrayList<>(numberOfStates);
+        ArrayList<GameState> gameStateCache = new ArrayList<>();
         GameComparator gameComparator = new GameComparator("h2");
-        PriorityQueue<NPuzzleState> beamCache = new PriorityQueue<>(gameComparator);
+        PriorityQueue<GameState> beamCache = new PriorityQueue<>(gameComparator);
         int iterations = 0;
 
         beam.add(initialState);
@@ -179,9 +169,9 @@ public class GameSolver {
         while (!beam.isEmpty()) {
             beamCache.clear();
             // for each state in the beam, generate k random states
-            for (NPuzzleState beamState : beam) {
+            for (GameState beamState : beam) {
                 for (Move move : beamState.getValidMoves()) {
-                    NPuzzleState newState = new NPuzzleState(beamState.move(move));
+                    GameState newState = beamState.move(move);
                     newState.setPathToNode(beamState.getPathToNode());
                     newState.appendMoveToPath(move);
 
@@ -209,7 +199,7 @@ public class GameSolver {
 
             // select k best (using heuristic) states to keep from the beam cache
             while (!beamCache.isEmpty() && beam.size() < numberOfStates) {
-                NPuzzleState currentState = beamCache.poll();
+                GameState currentState = beamCache.poll();
                 if (!gameStateCache.contains(currentState)) {
                     gameStateCache.add(currentState);
                     beam.add(currentState);

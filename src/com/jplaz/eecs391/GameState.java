@@ -1,25 +1,42 @@
 package com.jplaz.eecs391;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 interface GameState {
 
-    GameState setState(String newState);
+    // getters & setters
+
+    int getPathCost();
+
+    void setPathCost(int pathCost);
+
+    LinkedList getPathToNode();
+
+    void setPathToNode(LinkedList newPath);
+
+    void setState(String state);
+
+    // state manipulation
+
+    void appendMoveToPath(Move move);
 
     GameState randomizeState(int n);
 
     GameState move(Move move);
 
-    boolean isValidMove(Move move);
+    // solver methods
 
-    // useful for randomization
+    int calculateHeuristic(String heuristic);
+
     ArrayList<Move> getValidMoves();
-
-    GameState solve(String algorithm);
 
     boolean isGoalState();
 
-    GameState printState();
+    // print methods
 
-    GameState applyCommand(Command cmd, String args) throws Exception;
+    void printState();
+
+    void printPath();
+
 }
