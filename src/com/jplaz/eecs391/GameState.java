@@ -19,11 +19,11 @@ interface GameState {
 
     // state manipulation
 
-    void appendMoveToPath(Move move);
+    void appendMoveToPath(String moveString);
 
     GameState randomizeState(int n);
 
-    GameState move(Move move);
+    GameState move(Move move, Side side);
 
     // solver methods
 

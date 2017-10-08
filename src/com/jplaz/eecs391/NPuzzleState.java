@@ -14,8 +14,7 @@ public class NPuzzleState implements GameState {
     // initialize to max int so the initial cost comparison is always chosen
     private int pathCost = Integer.MAX_VALUE;
 
-    // store the path to this node as a LinkedList of moves
-    private LinkedList<Move> pathToNode = new LinkedList<>();
+    private LinkedList<String> pathToNode = new LinkedList<>();
 
     public NPuzzleState(short[] initialBoard) {
         this.gameBoard = new short[GOAL_STATE.length];
@@ -62,8 +61,8 @@ public class NPuzzleState implements GameState {
         this.pathToNode = new LinkedList<>(newPath);
     }
 
-    public void appendMoveToPath(Move move) {
-        this.pathToNode.add(move);
+    public void appendMoveToPath(String moveString) {
+        this.pathToNode.add(moveString);
     }
 
     // Public Methods
@@ -86,8 +85,8 @@ public class NPuzzleState implements GameState {
     }
 
     public void printPath() {
-        for (Move move : this.pathToNode) {
-            System.out.print(move.toString() + " ");
+        for (String moveString : this.pathToNode) {
+            System.out.print(moveString + " ");
         }
         System.out.println();
     }
@@ -112,7 +111,7 @@ public class NPuzzleState implements GameState {
         return newState;
     }
 
-    public NPuzzleState move(Move move) {
+    public NPuzzleState move(Move move, Side side) {
         if (!isValidMove(move)) {
             System.out.println("Invalid Move! Try again.");
             return this;
@@ -156,7 +155,7 @@ public class NPuzzleState implements GameState {
     private NPuzzleState makeRandomMove(Random rand) {
         ArrayList<Move> validMoves = this.getValidMoves();
         Move randomMove = validMoves.get(rand.nextInt(validMoves.size()));
-        return move(randomMove);
+        return move(randomMove, null);
     }
 
     private short[] swap(int a, int b) {

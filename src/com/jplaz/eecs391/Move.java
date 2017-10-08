@@ -1,7 +1,7 @@
 package com.jplaz.eecs391;
 
 public enum Move {
-    UP, DOWN, LEFT, RIGHT;
+    UP, DOWN, LEFT, RIGHT, CLOCKWISE, COUNTERCLOCKWISE;
 
     public static Move stringToMove(String s) throws Exception {
         s = s.toLowerCase();
@@ -14,6 +14,10 @@ public enum Move {
                 return Move.LEFT;
             case "right":
                 return Move.RIGHT;
+            case "clockwise":
+                return Move.CLOCKWISE;
+            case "counterclockwise":
+                return Move.COUNTERCLOCKWISE;
             default:
                 throw new Exception("Invalid movement direction: " + s);
         }
