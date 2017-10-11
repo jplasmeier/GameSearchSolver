@@ -23,7 +23,7 @@ interface GameState {
 
     GameState randomizeState(int n);
 
-    GameState move(Move move, Side side);
+    GameState move(Move move);
 
     // solver methods
 

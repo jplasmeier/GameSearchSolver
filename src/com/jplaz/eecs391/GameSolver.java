@@ -123,11 +123,11 @@ public class GameSolver {
                 GameState newState;
 
                 // check cache in case the node was enqueued but not processed
-                if (gameStateCache.contains(currentNode.move(move, null))) {
-                    newState = gameStateCache.get(gameStateCache.indexOf(currentNode.move(move, null)));
+                if (gameStateCache.contains(currentNode.move(move))) {
+                    newState = gameStateCache.get(gameStateCache.indexOf(currentNode.move(move)));
                 }
                 else {
-                    newState = currentNode.move(move, null);
+                    newState = currentNode.move(move);
                     newState.setPathToNode(currentNode.getPathToNode());
                     newState.appendMoveToPath(move.toString());
                     gameStateCache.add(newState);
@@ -171,7 +171,7 @@ public class GameSolver {
             // for each state in the beam, generate k random states
             for (GameState beamState : beam) {
                 for (Move move : beamState.getValidMoves()) {
-                    GameState newState = beamState.move(move, null);
+                    GameState newState = beamState.move(move);
                     newState.setPathToNode(beamState.getPathToNode());
                     newState.appendMoveToPath(move.toString());
 
@@ -222,7 +222,7 @@ public class GameSolver {
                 this.currentGameState.printState();
                 break;
             case MOVE:
-                this.currentGameState.move(Move.stringToMove(arg), null);
+                this.currentGameState.move(NPuzzleMove.stringToMove(arg));
                 break;
             case SOLVE:
                 return this.solve(arg, currentGameState);

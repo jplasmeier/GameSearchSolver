@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 
+import static com.jplaz.eecs391.NPuzzleMove.*;
+
 public class NPuzzleState implements GameState {
 
     private static final short GOAL_STATE[] = {0,1,2,3,4,5,6,7,8};
@@ -100,7 +102,7 @@ public class NPuzzleState implements GameState {
         return true;
     }
 
-    public NPuzzleState randomizeState(int n) {
+    public GameState randomizeState(int n) {
         Random rand = new Random(391L);
         System.arraycopy(GOAL_STATE, 0, this.gameBoard, 0, GOAL_STATE.length);
         NPuzzleState newState = this;
@@ -111,14 +113,15 @@ public class NPuzzleState implements GameState {
         return newState;
     }
 
-    public NPuzzleState move(Move move, Side side) {
+    public NPuzzleState move(Move move) {
         if (!isValidMove(move)) {
-            System.out.println("Invalid Move! Try again.");
+            System.out.println("Invalid NPuzzleMove! Try again.");
             return this;
         }
         int blankSpace = findBlankSpace();
         short[] newBoard;
-        switch (move) {
+        NPuzzleMove nMove = (NPuzzleMove) move;
+        switch (nMove) {
             case UP:
                 newBoard = swap(blankSpace, blankSpace - 3);
                 break;
@@ -138,11 +141,11 @@ public class NPuzzleState implements GameState {
     }
 
     public ArrayList<Move> getValidMoves() {
-        int numberOfMoves = Move.values().length;
+        int numberOfMoves = NPuzzleMove.values().length;
         ArrayList<Move> validMoves = new ArrayList<>(numberOfMoves);
 
         // check the validity of each move
-        for (Move move : Move.values()) {
+        for (NPuzzleMove move : NPuzzleMove.values()) {
             if (isValidMove(move)) {
                 validMoves.add(move);
             }
@@ -155,7 +158,7 @@ public class NPuzzleState implements GameState {
     private NPuzzleState makeRandomMove(Random rand) {
         ArrayList<Move> validMoves = this.getValidMoves();
         Move randomMove = validMoves.get(rand.nextInt(validMoves.size()));
-        return move(randomMove, null);
+        return move(randomMove);
     }
 
     private short[] swap(int a, int b) {
@@ -180,7 +183,8 @@ public class NPuzzleState implements GameState {
 
     private boolean isValidMove(Move move) {
         int blankSpace = findBlankSpace();
-        switch (move) {
+        NPuzzleMove nMove = (NPuzzleMove) move;
+        switch (nMove) {
             case UP:
                 return (3 <= blankSpace && blankSpace <= 8);
             case DOWN:
