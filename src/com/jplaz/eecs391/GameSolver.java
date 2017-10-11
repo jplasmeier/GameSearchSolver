@@ -28,6 +28,10 @@ public class GameSolver {
 
     private GameState currentGameState;
 
+    public GameSolver() {
+        super();
+    }
+
     public GameSolver(GameState initialState) {
         this.currentGameState = initialState;
     }
@@ -222,12 +226,26 @@ public class GameSolver {
                 this.currentGameState.printState();
                 break;
             case MOVE:
-                this.currentGameState.move(NPuzzleMove.stringToMove(arg));
+                this.currentGameState.move(this.currentGameState.stringToMove(arg));
                 break;
             case SOLVE:
                 return this.solve(arg, currentGameState);
             case SET_MAX_NODES:
                 this.setMaxNodes(Integer.parseInt(arg));
+                break;
+            case PLAY:
+                System.out.println("Playing the game with arg: " + arg);
+                switch (arg) {
+                    case "rubiks":
+                        this.currentGameState = new RubiksPuzzleState();
+                        break;
+                    case "8-puzzle":
+                        this.currentGameState = new NPuzzleState();
+                        break;
+                    default:
+                        System.out.println("WARNING: No valid game mode selected! Try again.");
+                        break;
+                }
                 break;
             case NOOP:
                 // do...nothing!

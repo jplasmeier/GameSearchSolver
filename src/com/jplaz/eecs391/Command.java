@@ -1,7 +1,7 @@
 package com.jplaz.eecs391;
 
 public enum Command {
-    SET_STATE, RANDOMIZE_STATE, PRINT_STATE, MOVE, SOLVE, SET_MAX_NODES, NOOP;
+    SET_STATE, RANDOMIZE_STATE, PRINT_STATE, MOVE, SOLVE, SET_MAX_NODES, PLAY, NOOP;
 
     public static Command stringToCommand(String s) throws Exception {
         switch (s) {
@@ -17,6 +17,8 @@ public enum Command {
                 return Command.SOLVE;
             case "maxNodes":
                 return SET_MAX_NODES;
+            case "play":
+                return PLAY;
             default:
                 return NOOP;
         }

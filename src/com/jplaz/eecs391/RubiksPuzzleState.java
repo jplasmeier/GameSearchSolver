@@ -10,7 +10,8 @@ public class RubiksPuzzleState implements GameState {
 
     private final static int BOARD_SIZE = 2*2*6;
 
-    private final static short GOAL_STATE[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
+    private final static short GOAL_STATE[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+            20, 21, 22, 23};
 
     private short gameBoard[];
 
@@ -22,6 +23,10 @@ public class RubiksPuzzleState implements GameState {
     public RubiksPuzzleState(short[] initialBoard) {
         this.gameBoard = new short[GOAL_STATE.length];
         System.arraycopy(initialBoard, 0, this.gameBoard, 0, initialBoard.length);
+    }
+
+    public RubiksPuzzleState() {
+        this(GOAL_STATE);
     }
 
     public int getPathCost() {
@@ -166,6 +171,37 @@ public class RubiksPuzzleState implements GameState {
     private boolean isValidMove(RubiksMove move) {
         // unlike the 8-puzzle, all moves are valid
         return true;
+    }
+
+    public RubiksMove stringToMove(String s) {
+        switch (s) {
+            case "top_ccw":
+                return TOP_CCW;
+            case "front_ccw":
+                return FRONT_CCW;
+            case "left_ccw":
+                return LEFT_CCW;
+            case "right_ccw":
+                return RIGHT_CCW;
+            case "bottom_ccw":
+                return BOTTOM_CCW;
+            case "back_ccw":
+                return BACK_CCW;
+            case "top_cw":
+                return TOP_CW;
+            case "front_cw":
+                return FRONT_CW;
+            case "left_cw":
+                return LEFT_CW;
+            case "right_cw":
+                return RIGHT_CW;
+            case "bottom_cw":
+                return BOTTOM_CW;
+            case "back_cw":
+                return BACK_CW;
+        }
+        System.out.println("WARNING! Illegal move specified for Rubiks Cube.");
+        return null;
     }
 
     public boolean isGoalState() {

@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class Main {
 
-    private static GameSolver solver = new GameSolver(new NPuzzleState("b12 345 678"));
+    private static GameSolver solver = new GameSolver();
 
     private static void parseLineAndApply(String line) throws Exception {
         String input_tokens[] = line.split(" ", 2);
@@ -52,7 +52,6 @@ public class Main {
         GameType gameType = GameType.N_PUZZLE;
         String file = "commands.txt";
         int gameSize = 3;
-        int maxNodes = 20000;
 
         if (args.length == 0) {
             // no command-line arguments

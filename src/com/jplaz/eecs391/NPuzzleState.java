@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 
-import static com.jplaz.eecs391.NPuzzleMove.*;
-
 public class NPuzzleState implements GameState {
 
     private static final short GOAL_STATE[] = {0,1,2,3,4,5,6,7,8};
@@ -23,8 +21,8 @@ public class NPuzzleState implements GameState {
         System.arraycopy(initialBoard, 0, this.gameBoard, 0, initialBoard.length);
     }
 
-    public NPuzzleState(String initialState) {
-        setState(initialState);
+    public NPuzzleState() {
+        this(GOAL_STATE);
     }
 
     public void setState(String newState) {
@@ -195,6 +193,22 @@ public class NPuzzleState implements GameState {
                 return ((blankSpace + 1) % 3 != 0);
         }
         return false;
+    }
+
+    public NPuzzleMove stringToMove(String s) {
+        s = s.toLowerCase();
+        switch(s) {
+            case "up":
+                return NPuzzleMove.UP;
+            case "down":
+                return NPuzzleMove.DOWN;
+            case "left":
+                return NPuzzleMove.LEFT;
+            case "right":
+                return NPuzzleMove.RIGHT;
+        }
+        System.out.println("WARNING! Illegal move chosen for 8-puzzle!");
+        return null;
     }
 
     // Heuristics

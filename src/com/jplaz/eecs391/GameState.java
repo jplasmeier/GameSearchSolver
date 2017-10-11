@@ -25,6 +25,8 @@ interface GameState {
 
     GameState move(Move move);
 
+    Move stringToMove(String s);
+
     // solver methods
 
     int calculateHeuristic(String heuristic);
