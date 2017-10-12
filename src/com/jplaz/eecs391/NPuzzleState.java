@@ -45,6 +45,10 @@ public class NPuzzleState implements GameState {
         this.gameBoard = newBoard;
     }
 
+    public void setToGoalState() {
+        System.arraycopy(GOAL_STATE, 0 , this.gameBoard, 0, GOAL_STATE.length);
+    }
+
     public int getPathCost() {
         return pathCost;
     }

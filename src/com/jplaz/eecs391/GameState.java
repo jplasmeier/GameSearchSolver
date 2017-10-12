@@ -17,6 +17,8 @@ interface GameState {
 
     void setState(String state);
 
+    void setToGoalState();
+
     // state manipulation
 
     void appendMoveToPath(String moveString);

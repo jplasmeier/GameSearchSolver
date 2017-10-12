@@ -3,6 +3,7 @@ package com.jplaz.eecs391;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Random;
 
 import static com.jplaz.eecs391.RubiksMove.*;
 
@@ -45,7 +46,26 @@ public class RubiksPuzzleState implements GameState {
         this.pathToNode = newPath;
     }
     public void setState(String state) {
-        // pending definition of String representation
+        // string representation of goal state is:
+        // "0123 4567 89ab cdef ghij klmn"
+        // this uses "Triacontakaidecimal" numbering
+        short newBoard[] = new short[BOARD_SIZE];
+        int boardPosition = 0;
+
+        System.out.println();
+
+        for(int i = 0; i < BOARD_SIZE; i++) {
+            if (!(state.charAt(i) == ' ')) {
+                newBoard[boardPosition] = (short) Character.getNumericValue(state.charAt(i));
+                System.out.print(" " + newBoard[boardPosition]);
+                boardPosition++;
+            }
+        }
+        this.gameBoard = newBoard;
+    }
+
+    public void setToGoalState() {
+        System.arraycopy(GOAL_STATE, 0 , this.gameBoard, 0, GOAL_STATE.length);
     }
 
     public void appendMoveToPath(String moveString) {
@@ -53,7 +73,21 @@ public class RubiksPuzzleState implements GameState {
     }
 
     public RubiksPuzzleState randomizeState(int n) {
-        return null;
+        Random rand = new Random(391L);
+        System.arraycopy(GOAL_STATE, 0, this.gameBoard, 0, GOAL_STATE.length);
+        RubiksPuzzleState newState = this;
+
+        for (int i = 0; i < n; i++) {
+            newState = newState.makeRandomMove(rand);
+        }
+        return newState;
+    }
+
+    // copied from NPuzzleState - can abstract out
+    private RubiksPuzzleState makeRandomMove(Random rand) {
+        ArrayList<Move> validMoves = this.getValidMoves();
+        Move randomMove = validMoves.get(rand.nextInt(validMoves.size()));
+        return move(randomMove);
     }
 
     public RubiksPuzzleState move(Move move) {
@@ -160,7 +194,12 @@ public class RubiksPuzzleState implements GameState {
     }
 
     public int calculateHeuristic(String heuristic) {
-        return 0;
+        switch (heuristic) {
+            case "h1":
+                return numberOfMisplacedTiles();
+            default:
+                return 0;
+        }
     }
 
     public ArrayList<Move> getValidMoves() {
@@ -213,11 +252,61 @@ public class RubiksPuzzleState implements GameState {
         return true;
     }
 
-    public void printState() {
+    // Heuristics
 
+    /*
+     * Heuristic h1
+     */
+    public int numberOfMisplacedTiles() {
+        int numberOfTiles = 0;
+        for (int i = 0; i < gameBoard.length; i++) {
+            if (gameBoard[i] != GOAL_STATE[i]) {
+                numberOfTiles++;
+            }
+        }
+        return numberOfTiles;
+    }
+
+
+    public void printState() {
+        System.out.print("\"");
+        for (int i = 0; i < this.gameBoard.length; i++) {
+            if (i % 4 == 0 && i != 0) {
+                System.out.print(" ");
+            }
+            System.out.print(gameBoard[i]);
+        }
+        System.out.print("\"");
+        System.out.println();
     }
 
     public void printPath() {
+        for (String moveString : this.pathToNode) {
+            System.out.print(moveString + " ");
+        }
+        System.out.println();
+    }
 
+    // Overridden methods
+
+    @Override
+    public boolean equals(Object o2) {
+        if (!(o2 instanceof RubiksPuzzleState)) {
+            return false;
+        }
+        RubiksPuzzleState n2 = (RubiksPuzzleState) o2;
+
+        for (int i = 0; i < this.gameBoard.length; i++) {
+            if (this.gameBoard[i] != n2.gameBoard[i]) {
+                return false;
+            }
+        }
+        return true;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(this.gameBoard);
     }
 }

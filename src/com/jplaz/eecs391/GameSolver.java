@@ -64,8 +64,8 @@ public class GameSolver {
         }
 
         if (success) {
-            // solution found, reset to initialState (goal)
-            this.currentGameState.setState("b12 345 678");
+            // solution found, reset to goal state
+            this.currentGameState.setToGoalState();
         }
         else {
             System.out.print("No solution was found, so resetting to previous state: ");
@@ -164,7 +164,7 @@ public class GameSolver {
         // initialize beam and gameStateCache
         ArrayList<GameState> beam = new ArrayList<>(numberOfStates);
         ArrayList<GameState> gameStateCache = new ArrayList<>();
-        GameComparator gameComparator = new GameComparator("h2");
+        GameComparator gameComparator = new GameComparator("h1");
         PriorityQueue<GameState> beamCache = new PriorityQueue<>(gameComparator);
         int iterations = 0;
 
@@ -234,7 +234,7 @@ public class GameSolver {
                 this.setMaxNodes(Integer.parseInt(arg));
                 break;
             case PLAY:
-                System.out.println("Playing the game with arg: " + arg);
+                System.out.println("Playing the " + arg + " game.");
                 switch (arg) {
                     case "rubiks":
                         this.currentGameState = new RubiksPuzzleState();

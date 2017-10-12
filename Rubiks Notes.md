@@ -6,10 +6,17 @@ A new command `play` has been added:
 
 `play rubiks` initializes a Rubik's Cube.
 
-`play 8puzzle` initializes an 8-puzzle.
+`play 8-puzzle` initializes an 8-puzzle.
 
 
 ## TODO
 
-* the CLI/file interface + downstream code (e.g.applyCommand) needs to know about side
+* refactor into GameSolver/abstract GameState class:
+	* randomizeState and makeRandomMove
+	* printPath
+	* overridden methods (equals, hashCode)
+* implement another heuristic
+* do something about undo moves (CW -> CCW on the same side)
+* come up with a better string representation of the 2x2x2 cube
+* the file parsing interface needs to know about RubiksPuzzle
 * stringToMove methods should throw exceptions instead of returning null
