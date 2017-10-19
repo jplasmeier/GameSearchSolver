@@ -39,7 +39,7 @@ public class RubiksPuzzleState implements GameState {
     }
 
     public LinkedList getPathToNode() {
-        return this.pathToNode;
+        return (LinkedList) this.pathToNode.clone();
     }
 
     public void setPathToNode(LinkedList newPath) {

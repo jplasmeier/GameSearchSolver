@@ -20,3 +20,4 @@ A new command `play` has been added:
 * come up with a better string representation of the 2x2x2 cube
 * the file parsing interface needs to know about RubiksPuzzle
 * stringToMove methods should throw exceptions instead of returning null
+* why bother with string lowercase when enums are caps?
