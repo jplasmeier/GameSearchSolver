@@ -87,6 +87,7 @@ public class RubiksPuzzleState implements GameState {
     private RubiksPuzzleState makeRandomMove(Random rand) {
         ArrayList<Move> validMoves = this.getValidMoves();
         Move randomMove = validMoves.get(rand.nextInt(validMoves.size()));
+        System.out.println("Making random move: " + randomMove.toString());
         return move(randomMove);
     }
 
@@ -274,7 +275,12 @@ public class RubiksPuzzleState implements GameState {
             if (i % 4 == 0 && i != 0) {
                 System.out.print(" ");
             }
-            System.out.print(gameBoard[i]);
+            if (i >= 10) {
+                System.out.print((char) (i+87));
+            }
+            else {
+                System.out.print(gameBoard[i]);
+            }
         }
         System.out.print("\"");
         System.out.println();

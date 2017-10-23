@@ -234,7 +234,6 @@ public class GameSolver {
                 this.setMaxNodes(Integer.parseInt(arg));
                 break;
             case PLAY:
-                System.out.println("Playing the " + arg + " game.");
                 switch (arg) {
                     case "rubiks":
                         this.currentGameState = new RubiksPuzzleState();
